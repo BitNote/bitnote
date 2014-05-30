@@ -1,0 +1,9 @@
+Building Bitnote
+
+See doc/readme-qt.rst for instructions on building Bitnote QT,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of SummerCoin.
+
+See doc/build-*.txt for instructions on building bitnoted,
+the intended-for-services, no-graphical-interface, reference
+implementation of Bitnote.
