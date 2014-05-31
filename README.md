@@ -1,23 +1,29 @@
 Bitnote
 ==============
 
-Bitnote is an X11 Proof of Work/ Proof of Stake altcoin.
+Bitnote is an alternative cryptocurrency based on X11 Proof of Work/ Proof of Stake architecture.
 
 Features:
  - 10 million total coins
  - 2 minute block targets
- - 50 coins per block for first 3 months
- - Retargeting every block
- - 90 confirms for mining
- - 6 confirms for sending/receiving
+ - 50 coins per block for first 3 month PoW stage
+ - 90 confirmations for mining
+ - 6 confirmations for sending/receiving
+ - 2.5% Annual PoS interest
  
 Ports:
 
 Net - 43662 
 RPC - 43661
 
-Bitnote development tree
-Bitnote is a PoW/PoS-based cryptocurrency.
+Sample .conf File:
+server=1
+rpcuser=username
+rpcpassword=password
+rpcallowip=127.0.0.1
+rpcport=43661 
+port=43662
+listen=1
 
 
 Development process

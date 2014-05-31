@@ -44,7 +44,7 @@ unsigned int nStakeMinAge = 8 * 60 * 60; // minimum age for coin age - 8 hours
 unsigned int nStakeMaxAge = 60 * 60 * 24 * 7; // stake age full weight - 7 days
 unsigned int nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
-int nCoinbaseMaturity = 70;
+int nCoinbaseMaturity = 90;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
 
@@ -973,7 +973,7 @@ int64_t GetProofOfWorkReward(int64_t nFees)
     } 
 	
 	else if(nHeight >= 2 && nHeight <= 1440) {
-	nSubsidy = 5 * COIN;
+	nSubsidy = 1 * COIN;
     }
 	
 	else if(nHeight >= 1441 && nHeight <= 61000) {
