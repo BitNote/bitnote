@@ -2141,14 +2141,19 @@ bool CBlock::AcceptBlock()
         }
     }
 
-    bool cpSatisfies = Checkpoints::CheckSync(hash, pindexPrev);
+    /* Check against advanced checkpoints */
+    if(!IsInitialBlockDownload()) {
+        bool cpSatisfies = Checkpoints::CheckSync(hash, pindexPrev);
 
-    // Check that the block satisfies synchronized checkpoint
-    if (CheckpointsMode == Checkpoints::STRICT && !cpSatisfies)
-        return error("AcceptBlock() : rejected by synchronized checkpoint");
+        /* Failed blocks are rejected in strict mode */
+        if((CheckpointsMode == Checkpoints::STRICT) && !cpSatisfies)
+          return(error("AcceptBlock() : block %s height %d rejected by the ACP",
+            hash.ToString().substr(0,20).c_str(), nHeight));
 
-    if (CheckpointsMode == Checkpoints::ADVISORY && !cpSatisfies)
-        strMiscWarning = _("WARNING: syncronized checkpoint violation detected, but skipped!");
+        /* Failed blocks are accepted in advisory mode with a warning issued */
+        if((CheckpointsMode == Checkpoints::ADVISORY) && !cpSatisfies)
+          strMiscWarning = _("WARNING: failed against the ACP!");
+    }
 
     // Enforce rule that the coinbase starts with serialized block height
     CScript expect = CScript() << nHeight;
@@ -2176,8 +2181,8 @@ bool CBlock::AcceptBlock()
                 pnode->PushInventory(CInv(MSG_BLOCK, hash));
     }
 
-    // ppcoin: check pending sync-checkpoint
-    Checkpoints::AcceptPendingSyncCheckpoint();
+    /* Process an advanced checkpoint pending */
+    if(!IsInitialBlockDownload()) Checkpoints::AcceptPendingSyncCheckpoint();
 
     return true;
 }
@@ -2214,6 +2219,9 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
     if (mapOrphanBlocks.count(hash))
         return error("ProcessBlock() : already have block (orphan) %s", hash.ToString().substr(0,20).c_str());
 
+    /* Ask for a pending advanced checkpoint if any */
+    if(!IsInitialBlockDownload()) Checkpoints::AskForPendingSyncCheckpoint(pfrom);
+
     // ppcoin: check proof-of-stake
     // Limited duplicity on stake: prevents block flood attack
     // Duplicate stake allowed only when there is orphan child block
@@ -2245,10 +2253,6 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
             return error("ProcessBlock() : block with too little %s", pblock->IsProofOfStake()? "proof-of-stake" : "proof-of-work");
         }
     }
-
-    // ppcoin: ask for pending sync-checkpoint if any
-    if (!IsInitialBlockDownload())
-        Checkpoints::AskForPendingSyncCheckpoint(pfrom);
 
     // If don't already have its previous block, shunt it off to holding area until we get it
     if (!mapBlockIndex.count(pblock->hashPrevBlock))
@@ -2306,9 +2310,10 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 
     printf("ProcessBlock: ACCEPTED\n");
 
-    // ppcoin: if responsible for sync-checkpoint send it
-    if (pfrom && !CSyncCheckpoint::strMasterPrivKey.empty())
-        Checkpoints::SendSyncCheckpoint(Checkpoints::AutoSelectSyncCheckpoint());
+    /* Checkpoint master sends a new advanced checkpoint
+     * according to the depth specified by -checkpointdepth */
+    if(pfrom && !CSyncCheckpoint::strMasterPrivKey.empty())
+      Checkpoints::SendSyncCheckpoint(Checkpoints::AutoSelectSyncCheckpoint());
 
     return true;
 }

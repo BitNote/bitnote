@@ -25,6 +25,7 @@ namespace Checkpoints
     static MapCheckpoints mapCheckpoints =
         boost::assign::map_list_of
         ( 0,      hashGenesisBlock )
+        ( 1333,   uint256("0x000000002e718e5d13c3aff3079ef77910b7f00053a661c83c4c24c7a9385c6e") )
     ;
 
     // TestNet has no checkpoints
@@ -184,14 +185,14 @@ namespace Checkpoints
         return false;
     }
 
-    // Automatically select a suitable sync-checkpoint 
-    uint256 AutoSelectSyncCheckpoint()
-    {
+    /* Checkpoint master: selects a block for checkpointing according to the policy */
+    uint256 AutoSelectSyncCheckpoint() {
+        /* No immediate checkpointing on either PoW or PoS blocks,
+         * select by depth in the main chain rather than block time */
         const CBlockIndex *pindex = pindexBest;
-        // Search backward for a block within max span and maturity window
-        while (pindex->pprev && (pindex->GetBlockTime() + CHECKPOINT_MAX_SPAN > pindexBest->GetBlockTime() || pindex->nHeight + 8 > pindexBest->nHeight))
-            pindex = pindex->pprev;
-        return pindex->GetBlockHash();
+        while(pindex->pprev && (pindex->nHeight + (int)GetArg("-checkpointdepth", CHECKPOINT_DEFAULT_DEPTH))
+          > pindexBest->nHeight) pindex = pindex->pprev;
+        return(pindex->GetBlockHash());
     }
 
     // Check against synchronized checkpoint
@@ -347,7 +348,7 @@ namespace Checkpoints
 }
 
 // ppcoin: sync-checkpoint master key
-const std::string CSyncCheckpoint::strMasterPubKey = "04a18357665ed7a802dcf252ef528d3dc786da38653b51d1ab8e9f4820b55aca807892a056781967315908ac205940ec9d6f2fd0a85941966971eac7e475a27826";
+const std::string CSyncCheckpoint::strMasterPubKey = "04daa4aae6c09bf8cdb1713de47405ba5482277b2a14f1aab1465ae70b1393b25ddf3dd0042cf0e59fb8b5ca6a14ff8dd0c69d69cf73872b66c5cbdf5d06a163c9";
 
 std::string CSyncCheckpoint::strMasterPrivKey = "";
 
