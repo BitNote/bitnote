@@ -980,6 +980,9 @@ int64_t GetProofOfWorkReward(int64_t nFees)
 	nSubsidy = 50 * COIN;
     }
 	
+	// PoW subsidy is cut in half every 129600 blocks, which will occur approximately every 0.5 years
+    nSubsidy >>= (nHeight / 129600); // BitNote 129600 blocks 0.5 years
+	
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfWorkReward() : create=%s nSubsidy=%"PRId64"\n", FormatMoney(nSubsidy).c_str(), nSubsidy);
 
