@@ -966,7 +966,7 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
     int nHeight = pindexBest->nHeight + 1;
-    int64_t nSubsidy = 5 * COIN;
+    int64_t nSubsidy = 25 * COIN;
 
     if(nHeight == 1) {
 	nSubsidy = 50000 * COIN;
@@ -976,12 +976,16 @@ int64_t GetProofOfWorkReward(int64_t nFees)
 	nSubsidy = 1 * COIN;
     }
 	
-	else if(nHeight >= 1441 && nHeight <= 61000) {
+	else if(nHeight >= 1441 && nHeight <= 65700) {
 	nSubsidy = 50 * COIN;
     }
 	
-	// PoW subsidy is cut in half every 129600 blocks, which will occur approximately every 0.5 years
-    nSubsidy >>= (nHeight / 129600); // BitNote 129600 blocks 0.5 years
+	else if(nHeight >= 65701 && nHeight <= 131399) {
+	nSubsidy = 25 * COIN;
+    }
+
+	// PoW subsidy is cut in half every 131400 blocks, which will occur approximately every 0.5 years
+    nSubsidy >>= (nHeight / 131400); // BitNote 131400 blocks 0.5 years
 	
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfWorkReward() : create=%s nSubsidy=%"PRId64"\n", FormatMoney(nSubsidy).c_str(), nSubsidy);
